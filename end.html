@@ -12,30 +12,32 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <title>Swenglish - Game End</title>
 </head>
-
 <body>
-    <main class="container">
-        <div id="end" class="flex-center flex-column">
-            <!-- final score localStorage -->
-            <h1 id="finalScore">0</h1>
-            <form class="end-form-container">
-                <h2 id="end-text">Enter your Name below to save your score!</h2>
-                <!-- username -->
-                <input type="text" name="name" id="username" placeholder="Enter your name" required>
-            </form>
-            <!-- save score -->
-            <button class=btn id="saveScoreBtn" type="submit" onclick="saveHighScore(event)"disabled>Save</button>
-            <!-- play again -->
-            <a href="game.html" class="btn">Play Again</a>
-            <!-- return home -->
-            <a href="index.html" class="btn">Go Home<i class="fas fa-home"></i></a>
-        </div>
-    </main>
+  <main class="container">
+    <div id="end" class="flex-center flex-column">
+      <!-- final score from localStorage -->
+      <h1 id="finalScore">0</h1>
 
-    <!-- scripts -->
-    
-    <script src="assets/js/end.js"></script>
-    <script src="assets/js/save-highscore.js" defer></script>
+      <form class="end-form-container" id="saveScoreForm" novalidate>
+        <h2 id="end-text">Enter your Name below to save your score!</h2>
 
+        <!-- username -->
+        <label for="username" class="sr-only">Name</label>
+        <input type="text" name="name" id="username" placeholder="Enter your name" required autocomplete="name" />
+
+        <!-- save score -->
+        <button class="btn" id="saveScoreBtn" type="button" disabled>Save</button>
+      </form>
+
+      <!-- play again -->
+      <a href="game.html" class="btn">Play Again</a>
+      <!-- return home -->
+      <a href="index.html" class="btn">Go Home <i class="fas fa-home"></i></a>
+    </div>
+  </main>
+
+  <!-- scripts (defer recommended so DOM is parsed before scripts run) -->
+  <script src="assets/js/end.js" defer></script>
+  <script src="assets/js/save-highscore.js" defer></script>
 </body>
 </html>
