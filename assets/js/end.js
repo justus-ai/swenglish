@@ -1,6 +1,5 @@
 /* jshint esversion: 8*/
-​
-// global variables
+​// global variables
 const username = document.querySelector('#username');
 const saveScoreBtn = document.querySelector('#saveScoreBtn');
 const finalScore = document.querySelector('#finalScore');
