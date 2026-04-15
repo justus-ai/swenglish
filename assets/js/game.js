@@ -3,12 +3,13 @@
 
 // DOM nodes (guarded)
 const questionEl = document.querySelector('#question');
+const choiceContainers = Array.from(document.querySelectorAll('.choice-container'));
 const choices = Array.from(document.querySelectorAll('.choice-text'));
 const progressText = document.querySelector('#progressText');
 const scoreText = document.querySelector('#score');
 const progressBarFull = document.querySelector('#progressBarFull');
 
-if (!questionEl || choices.length === 0 || !progressText || !scoreText) {
+if (!questionEl || choices.length === 0 || choiceContainers.length !== choices.length || !progressText || !scoreText) {
   // Required DOM not present — abort gracefully
   console.warn('Quiz: required DOM elements missing; quiz will not initialize.');
 } else {
@@ -87,8 +88,10 @@ if (!questionEl || choices.length === 0 || !progressText || !scoreText) {
       const number = choice.dataset.number;
       // guard: ensure the property exists
       choice.innerText = currentQuestion['choice' + number] || '';
-      // remove previous marker classes if any
-      choice.classList.remove('correct', 'incorrect');
+    });
+
+    choiceContainers.forEach(container => {
+      container.classList.remove('correct', 'incorrect');
     });
 
     availableQuestions.splice(questionsIndex, 1);
@@ -96,19 +99,18 @@ if (!questionEl || choices.length === 0 || !progressText || !scoreText) {
   }
 
   // add click handler(s)
-  choices.forEach(choice => {
-    choice.addEventListener('click', e => {
+  choiceContainers.forEach(container => {
+    container.addEventListener('click', () => {
       if (!acceptingAnswers) return;
       acceptingAnswers = false;
 
-      // allow clicking inner elements: find the closest element with data-number
-      const selected = e.target.closest('[data-number]');
-      if (!selected) {
+      const selectedChoice = container.querySelector('.choice-text');
+      if (!selectedChoice) {
         acceptingAnswers = true;
         return;
       }
 
-      const selectedAnswer = parseInt(selected.dataset.number, 10);
+      const selectedAnswer = parseInt(selectedChoice.dataset.number, 10);
       const isCorrect = selectedAnswer === Number(currentQuestion.answer);
       const classToApply = isCorrect ? 'correct' : 'incorrect';
 
@@ -116,11 +118,11 @@ if (!questionEl || choices.length === 0 || !progressText || !scoreText) {
         incrementScore(SCORE_POINTS);
       }
 
-      // add feedback class to the choice container
-      selected.classList.add(classToApply);
+      // add feedback class to the full choice row
+      container.classList.add(classToApply);
 
       setTimeout(() => {
-        selected.classList.remove(classToApply);
+        container.classList.remove(classToApply);
         getNewQuestion();
       }, 1000);
     });

@@ -12,9 +12,28 @@
   const MAX_HIGH_SCORES = 5;
 
   // ---- Helpers ----
+  function normalizeEntry(entry) {
+    if (!entry || typeof entry !== 'object') return null;
+
+    const score = Number(entry.score);
+    const name = typeof entry.name === 'string' ? entry.name.trim().slice(0, 24) : 'Anonymous';
+    const date = typeof entry.date === 'string' ? entry.date : '';
+
+    return {
+      name: name || 'Anonymous',
+      score: Number.isFinite(score) ? score : 0,
+      date
+    };
+  }
+
   function readHighScores() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      if (!Array.isArray(parsed)) return [];
+
+      return parsed
+        .map(normalizeEntry)
+        .filter(Boolean);
     } catch (err) {
       console.warn('Could not parse highScores from localStorage', err);
       return [];
@@ -31,12 +50,15 @@
 
   function saveEntry(entry) {
     const list = readHighScores();
-    list.push(entry);
+    const normalizedEntry = normalizeEntry(entry);
+    if (!normalizedEntry) return;
+
+    list.push(normalizedEntry);
 
     // sort by score desc, then newest date first for ties
     list.sort((a, b) => {
       if ((b.score || 0) !== (a.score || 0)) return (b.score || 0) - (a.score || 0);
-      return (b.date || '').localeCompare(a.date || '') * -1;
+      return (b.date || '').localeCompare(a.date || '');
     });
 
     // keep only top N
@@ -46,7 +68,7 @@
 
     // store last saved for highlighting on leaderboard
     try {
-      localStorage.setItem(LAST_SAVED_KEY, JSON.stringify(entry));
+      localStorage.setItem(LAST_SAVED_KEY, JSON.stringify(normalizedEntry));
     } catch (err) {
       // ignore
     }
@@ -120,12 +142,13 @@
     // sort to be safe (score desc, newest first)
     scores.sort((a, b) => {
       if ((b.score || 0) !== (a.score || 0)) return (b.score || 0) - (a.score || 0);
-      return (b.date || '').localeCompare(a.date || '') * -1;
+      return (b.date || '').localeCompare(a.date || '');
     });
 
     // if empty show a friendly note
     if (!scores.length) {
       const li = document.createElement('li');
+      li.className = 'high-score-empty';
       li.textContent = 'No high scores yet — be the first!';
       listEl.appendChild(li);
       return;
